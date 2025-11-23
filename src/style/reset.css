@@ -1,0 +1,79 @@
+/* 抖音风格CSS初始化 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    /* 移除移动端点击高亮 */
+}
+
+html {
+    height: 100%;
+    -webkit-text-size-adjust: 100%;
+    /* 防止字体缩放 */
+    -webkit-font-smoothing: antialiased;
+    /* 字体抗锯齿 */
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    height: 100%;
+    line-height: 1.5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: rgb(22,24,35);
+    /* 抖音主背景色 */
+    color: #fff;
+    /* 抖音主文字色 */
+    overflow: hidden;
+    /* 防止页面滚动 */
+    user-select: none;
+    /* 防止文字选择 */
+    -webkit-user-drag: none;
+    /* 防止元素拖动 */
+}
+
+/* 重置列表样式 */
+ul,
+ol {
+    list-style: none;
+}
+
+/* 重置链接样式 */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* 重置按钮样式 */
+button {
+    border: none;
+    outline: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+}
+
+/* 重置输入框样式 */
+input,
+textarea {
+    border: none;
+    outline: none;
+    font-family: inherit;
+    color: inherit;
+    background: transparent;
+}
+
+/* 重置图片和媒体元素 */
+img,
+video {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* 隐藏滚动条但保持滚动功能 */
+::-webkit-scrollbar {
+    display: none;
+}
+
