@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 const searchKeywordlist = ref([])
 const searchKeyword = ref('')
@@ -18,13 +18,37 @@ const handleSearch = () => {
             searchKeywordlist.value.push(searchKeyword.value)
         }
         console.log(searchKeyword.value)
+        const searchKeywordlistStr = JSON.stringify(searchKeywordlist.value)
+        localStorage.setItem("searchKeywordlist", searchKeywordlistStr)
         searchKeyword.value = ''
     }
 }
 
 const clearHistory = () => {
     searchKeywordlist.value = []
+    localStorage.removeItem('searchKeywordlist');
 }
+
+const removeHistory = (idx) => {
+    if (idx > -1) {
+        searchKeywordlist.value.splice(idx, 1)
+        localStorage.setItem('searchKeywordlist', JSON.stringify(searchKeywordlist.value))
+    }
+}
+
+onMounted(() => {
+    const cache = localStorage.getItem('searchKeywordlist')
+    if (cache) {
+        try {
+            const parsed = JSON.parse(cache)
+            if (Array.isArray(parsed)) {
+                searchKeywordlist.value = parsed
+            }
+        } catch (err) {
+            console.warn('Failed to parse search history cache', err)
+        }
+    }
+})
 </script>
 
 <template>
@@ -63,15 +87,24 @@ const clearHistory = () => {
         <div class ="search-history-tt" style = "color: rgb(168, 168, 173)">
             <div style="font-weight:bold;">历史记录</div>
             <div class="search-history-clear" @click = " clearHistory"><i class="iconfont icon-shanchu" style="font-size: 8px;"></i>清除记录</div>
-
         </div>
         <div class = 'history'>
             <ul>
-                <li v-for = "i in searchKeywordlist" :key = i><span>{{i}}</span></li>
+                <li 
+                    v-for = "(item, index) in searchKeywordlist" 
+                    :key = "item"
+                    class="history-item"
+                >
+                    <span>{{item}}</span>
+                    <button class="history-remove" @click.stop="removeHistory(index)">
+                        ×
+                    </button>
+                </li>
             </ul>
         </div>
+        <div class = "search-history-tt" style = "color: rgb(168, 168, 173) ;font-weight:bold;">猜你想搜</div>
+        <div class = "search-history-tt" style = "color: rgb(168, 168, 173) ;font-weight:bold;">抖音热点</div>
 
-        <div></div>
     </div>
     
 </template>
@@ -241,16 +274,39 @@ const clearHistory = () => {
     .history ul  {
         display: flex;
         flex-wrap:wrap;
+        margin-left: 10px;
     }
 
     .history ul li {
-        height: 12px;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        height: 14px;
         padding: 0 3px;
         background-color: rgb(51, 52, 63);
-        margin: 0 3px 5px 0;
+        margin: 0 5px 5px 0;
         border-radius: 2px;
     }
     .history ul li:hover {
         background-color: rgb(93, 95, 103);
+    }
+    .history-remove {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 8px;
+        height: 8px;
+        border: none;
+        border-radius: 50%;
+        background: rgb(51, 52, 63);
+        color: #fff;
+        font-size: 10px;
+        line-height: 12px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+    .history ul li:hover .history-remove {
+        display: flex;
     }
 </style>
