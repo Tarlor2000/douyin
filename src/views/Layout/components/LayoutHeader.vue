@@ -52,7 +52,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <link rel="stylesheet" href="//at.alicdn.com/t/c/font_5071343_exo7suyt999.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/c/font_5071343_4ccb3s166ik.css">
 
     <header >
         <router-link to="/"><i class="iconfont icon-douyin1" style="  margin-left: 10px;"></i><span>抖音</span></router-link>
@@ -83,7 +83,7 @@ onMounted(() => {
             
         </div>
     </header>
-    <div class="search-message" v-if = "flag" @mouseenter="flag = true">
+    <div class="search-message" v-if = "flag" @mouseenter="flag = true" @mouseleave="flag = false">
         <div class ="search-history-tt" style = "color: rgb(168, 168, 173)">
             <div style="font-weight:bold;">历史记录</div>
             <div class="search-history-clear" @click = " clearHistory"><i class="iconfont icon-shanchu" style="font-size: 8px;"></i>清除记录</div>
@@ -124,13 +124,13 @@ onMounted(() => {
         
     }
     .search-input {
-        width: 230px;
-        padding: 5px 10px;
+        width: 400px;
+        padding: 8px 10px;
         border: 1px solid rgb(89, 90, 98);
         border-right: none;
-        border-radius: 6px 0 0 6px;
+        border-radius: 10px 0 0 10px;
         outline: none;
-        font-size: 10px;
+        font-size: 16px;
         background-color: rgb(57, 58, 68);
         color: #fff;
         transition: background-color 0.3s, border-color 0.3s;
@@ -145,18 +145,20 @@ onMounted(() => {
         color: #000;
     }
     .search-btn {
-        padding: 5px 10px 5px 0;
+        padding: 0 18px 0 0;
+        height: 40px;
         border: 1px solid rgb(89, 90, 98);
         border-left: none;
-        border-radius: 0 6px 6px 0;
+        border-radius: 0 10px 10px 0;
         background-color: rgb(57, 58, 68);
         color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: background-color 0.3s, color 0.3s;
-        font-size: 9px;
+        font-size: 13px;
         font-weight:bold;
+        box-sizing: border-box;
     }
     /* 当 search-box 包含 focus 状态的 input 时，button 也同步变化 */
     .search-box:has(.search-input:focus) .search-btn {
@@ -171,6 +173,7 @@ onMounted(() => {
     .search-box:hover .search-btn {
         background-color: #fff;
         color: #000;
+
     }
     /* 当鼠标悬停在 input 上时，button 也变化 */
     .search-input:hover ~ .search-btn {
@@ -186,6 +189,8 @@ onMounted(() => {
     .search-btn:hover {
         background-color: #fff;
         color: #000;
+        border: 1px solid #fff;
+
     }
     .search-btn:active {
         background-color: rgb(15, 16, 25);
@@ -194,7 +199,7 @@ onMounted(() => {
         border-left: 1px solid rgb(89, 90, 98);
      }
     .search-btn span i {
-        font-size:9px
+        font-size:12px
     }
     i {
         margin-left: 10px;
@@ -206,17 +211,16 @@ onMounted(() => {
         border-radius: 3px;
     }
    .search-message {
-
         position: fixed;
-        top:32px;
-        left:340px;
-        width: 280px;
-
+        z-index: 10;
+        top:45px;
+        left:465px;
+        width: 465px;
         background-color: rgb(37, 38, 50);
         border: 1px solid rgb(89, 90, 98);
         border-radius: 6px;
         color: #fff;
-        font-size: 8px;
+        font-size: 12px;
     }
     .search-history-tt {
         display: flex;
@@ -237,7 +241,7 @@ onMounted(() => {
         align-items: center;
         justify-content: flex-end;
         gap: 8px;
-        font-size:6px;
+        font-size:10px;
         color:rgb(162, 163, 167);
     }
     .else ul li{
@@ -249,27 +253,28 @@ onMounted(() => {
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 20px;
+        width: 30px;
     }
     .else ul li div i {
         margin-left: 0;
-        font-size:10px
+        font-size:14px
     }
     .login {
         display:flex;
         align-items: center;
         justify-content: center;
         gap: 2px;
-        width: 50px;
-        height: 25px;
+        width: 70px;
+        height: 40px;
         background-color: rgb(254, 44, 85);
         border-radius: 5px;
         color: #fff;
         margin-left: 10px;
-        font-size:10px;
+        font-size:14px;
     }
     .login i {
         margin-left: 0;
+       
     }
     .history ul  {
         display: flex;
@@ -281,11 +286,11 @@ onMounted(() => {
         position: relative;
         display: inline-flex;
         align-items: center;
-        height: 14px;
+        height: 20px;
         padding: 0 3px;
         background-color: rgb(51, 52, 63);
         margin: 0 5px 5px 0;
-        border-radius: 2px;
+        border-radius: 4px;
     }
     .history ul li:hover {
         background-color: rgb(93, 95, 103);

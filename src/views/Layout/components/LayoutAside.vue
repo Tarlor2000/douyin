@@ -1,10 +1,9 @@
 <template>
-    <link rel="stylesheet" href="//at.alicdn.com/t/c/font_5071343_exo7suyt999.css">
 
     <div>
         <ul>
             <li><i class="iconfont icon-icon"></i>精选</li>
-            <li>推荐</li>
+            <li><router-link to = 'recommend'>推荐</router-link></li>
             <li>AI抖音</li>
             <li>关注</li>
             <li>朋友</li>
@@ -21,14 +20,14 @@
 
 <style scoped>
     div {
-        width: 110px;
+        width: 130px;
         text-align: center;
-        font-size:10px;
+        font-size:16px;
         font-weight: 400;
         color:rgb(197, 197, 200);
     }
     div ul li {
-        padding:8px 0;
+        padding:10px 0;
         margin: 0 20px;
         
     }
