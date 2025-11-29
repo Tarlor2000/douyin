@@ -33,7 +33,21 @@ const mockVideos = [
       avatar: "https://picsum.photos/id/64/200/200",
     },
     likeCount: 12345,
-    commentCount: 432,
+    commentCount: 2, // 评论数（与 commentList 长度一致）
+    commentList: [ // 该视频的初始评论列表
+      {
+        avatar: "https://picsum.photos/id/30/100/100",
+        author: "网友小A",
+        content: "这个教程太实用了！",
+        time: "1小时前",
+      },
+      {
+        avatar: "https://picsum.photos/id/31/100/100",
+        author: "前端学习者",
+        content: "请问这个效果是用什么插件实现的？",
+        time: "2小时前",
+      },
+    ],
   },
   {
     id: 2,
@@ -45,7 +59,15 @@ const mockVideos = [
       avatar: "https://picsum.photos/id/65/200/200",
     },
     likeCount: 8765,
-    commentCount: 211,
+    commentCount: 1,
+    commentList: [
+      {
+        avatar: "https://picsum.photos/id/32/100/100",
+        author: "UI设计师",
+        content: "Grid 布局真的太灵活了！",
+        time: "3小时前",
+      },
+    ],
   },
 ];
 
@@ -59,25 +81,36 @@ let page = 1;
 const loadMoreVideos = () => {
   isLoading.value = true;
   
-  // 模拟网络请求延迟
   setTimeout(() => {
     page++;
-    const newVideos = Array.from({ length: 2 }, (_, i) => ({
-      id: videos.value.length + 1 + i,
-      title: `模拟视频 - 第 ${page} 页 - ${i + 1}`,
-      videoUrl: `https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_${videos.value.length + 1 + i}MB.mp4`,
-      coverUrl: `https://picsum.photos/id/${20 + videos.value.length + i}/800/450`,
-      author: {
-        name: `模拟作者 ${Math.floor(Math.random() * 1000)}`,
-        avatar: `https://picsum.photos/id/${70 + videos.value.length + i}/200/200`,
-      },
-      likeCount: Math.floor(Math.random() * 100000),
-      commentCount: Math.floor(Math.random() * 1000),
-    }));
+    const newVideos = Array.from({ length: 2 }, (_, i) => {
+      // 随机生成 1-3 条模拟评论
+      const commentCount = Math.floor(Math.random() * 3) + 1;
+      const commentList = Array.from({ length: commentCount }, (_, j) => ({
+        avatar: `https://picsum.photos/id/${30 + j}/100/100`,
+        author: `网友${String.fromCharCode(65 + j)}`,
+        content: `模拟评论 ${j + 1}：这个视频不错！`,
+        time: `${Math.floor(Math.random() * 10) + 1}小时前`,
+      }));
+
+      return {
+        id: videos.value.length + 1 + i,
+        title: `模拟视频 - 第 ${page} 页 - ${i + 1}`,
+        videoUrl: `https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_${videos.value.length + 1 + i}MB.mp4`,
+        coverUrl: `https://picsum.photos/id/${20 + videos.value.length + i}/800/450`,
+        author: {
+          name: `模拟作者 ${Math.floor(Math.random() * 1000)}`,
+          avatar: `https://picsum.photos/id/${70 + videos.value.length + i}/200/200`,
+        },
+        likeCount: Math.floor(Math.random() * 100000),
+        commentCount: commentCount,
+        commentList: commentList, // 绑定评论列表
+      };
+    });
 
     videos.value.push(...newVideos);
     isLoading.value = false;
-  }, 1500); // 模拟1.5秒的加载时间
+  }, 1500);
 };
 
 // 4. 处理滑动事件

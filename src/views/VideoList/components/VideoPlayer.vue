@@ -1,22 +1,37 @@
 <template>
-  <div class="video-player">
-    <video
-      ref="videoRef"
-      :src="video.videoUrl"
-      :poster="video.coverUrl"
-      controlsList="nodownload"
+  <div class="video-player" :class="{ 'with-comments': isCommentShow, 'is-fullscreen': isFullscreen }">
+    <div class="video-wrapper">
+      <video
+        ref="videoRef"
+        :src="video.videoUrl"
+        :poster="video.coverUrl"
+        controlsList="nodownload"
         playsinline
         autoplay
         muted
         loop
-      @click="togglePlay"
-      @timeupdate="handleTimeUpdate"
-      @loadedmetadata="handleLoadedMetadata"
-      @play="handlePlay"
-      @pause="handlePause"
-    ></video>
+        @click="togglePlay"
+        @timeupdate="handleTimeUpdate"
+        @loadedmetadata="handleLoadedMetadata"
+        @play="handlePlay"
+        @pause="handlePause"
+      ></video>
+      <div class="video-actions" v-show="!isFullscreen">
+        <ul>
+          <li>
+            <img class="action-avatar" :src="video.author.avatar" alt="author avatar" />
+          </li>
+          <li><i class="iconfont icon-heart-3-fill"></i></li>
+          <li @click="isCommentShow = true"><i class="iconfont icon-pinglun4"></i></li>
+          <li><i class="iconfont icon-xingxingman"></i></li>
+          <li><i class="iconfont icon-zhuanfa"></i></li>
+          <li><i class="iconfont icon-erji"></i></li>
+
+        </ul>
+      </div>
+    </div>
     <!-- 进度条 -->
-    <div class="progress-wrapper">
+    <div class="progress-wrapper" v-show="!isFullscreen">
       <div class="progress-track" @click="seekVideo">
         <div class="progress-fill" :style="{ width: progress + '%' }"></div>
       </div>
@@ -64,30 +79,25 @@
       </div>
     </div>
 
-    <div class="video-info">
+    <div class="video-info" v-show="!isFullscreen">
       <h3 class="video-title">@{{ video.author.name}} </h3>
       <div class="author-info">
         <span class="author-name">{{ video.title }}</span>
       </div>
     </div>
-    <div class="video-actions">
-      <ul>
-        <li>
-          <img class="action-avatar" :src="video.author.avatar" alt="author avatar" />
-        </li>
-        <li><i class="iconfont icon-heart-3-fill"></i></li>
-        <li><i class="iconfont icon-pinglun4"></i></li>
-        <li><i class="iconfont icon-xingxingman"></i></li>
-        <li><i class="iconfont icon-zhuanfa"></i></li>
-        <li><i class="iconfont icon-erji"></i></li>
-
-      </ul>
-    </div>
+    <CommentPanel
+      :is-show="isCommentShow"
+      :video-id="video.id"
+      :init-comments="localComments"
+      @close="isCommentShow = false"
+      @submit-comment="handleSubmitComment"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import CommentPanel from "./CommentPanel.vue";
 
 const props = defineProps({
   video: {
@@ -105,6 +115,9 @@ const isLiked = ref(false);
 const isPaused = ref(true); // 当前播放状态
 const currentTime = ref(0);//当前进度
 const duration = ref(0);//总进度
+const isCommentShow = ref(false);
+const isFullscreen = ref(false);
+const localComments = ref(props.video.commentList ? [...props.video.commentList] : []);
 const progress = computed(() => {
   if (!duration.value) {
     return 0;
@@ -151,6 +164,10 @@ const handlePause = () => {
   isPaused.value = true;
 };
 
+const handleSubmitComment = (newComment) => {
+  localComments.value = [newComment, ...localComments.value];
+};
+
 // 键盘空格快捷播放 / 暂停
 const handleKeyDown = (event) => {
   if (event.code !== "Space") return;
@@ -161,6 +178,12 @@ const handleKeyDown = (event) => {
 
 onMounted(() => {
   window.addEventListener("keydown", handleKeyDown);
+  // 监听全屏状态变化
+  document.addEventListener("fullscreenchange", checkFullscreen);
+  document.addEventListener("webkitfullscreenchange", checkFullscreen);
+  document.addEventListener("mozfullscreenchange", checkFullscreen);
+  document.addEventListener("MSFullscreenChange", checkFullscreen);
+  checkFullscreen(); // 初始检查
 });
 
 // 点击进度条跳转到对应播放时间
@@ -174,6 +197,16 @@ const seekVideo = (event) => {
   const newTime = percent * duration.value;
   videoRef.value.currentTime = newTime;
   currentTime.value = newTime;
+};
+
+// 检测全屏状态
+const checkFullscreen = () => {
+  isFullscreen.value = !!(
+    document.fullscreenElement ||
+    document.webkitFullscreenElement ||
+    document.mozFullScreenElement ||
+    document.msFullscreenElement
+  );
 };
 
 // 切换全屏状态
@@ -221,6 +254,7 @@ watch(
         videoRef.value.play();
       } else {
         videoRef.value.pause();
+        isCommentShow.value = false;
       }
     }
   }
@@ -228,6 +262,10 @@ watch(
 
 onUnmounted(() => {
   window.removeEventListener("keydown", handleKeyDown);
+  document.removeEventListener("fullscreenchange", checkFullscreen);
+  document.removeEventListener("webkitfullscreenchange", checkFullscreen);
+  document.removeEventListener("mozfullscreenchange", checkFullscreen);
+  document.removeEventListener("MSFullscreenChange", checkFullscreen);
   if (videoRef.value) {
     videoRef.value.pause();
   }
@@ -241,6 +279,14 @@ watch(
     duration.value = videoRef.value?.duration || 0;
   }
 );
+
+watch(
+  () => props.video.commentList,
+  (newVal) => {
+    localComments.value = newVal ? [...newVal] : [];
+  },
+  { deep: true }
+);
 </script>
 
 <style scoped>
@@ -249,12 +295,29 @@ watch(
   width: 96%;
   height: 80vh;
   background-color: rgb(22,24,35);
+  transition: width 0.3s ease, padding-right 0.3s ease, height 0.3s ease;
+}
+
+.video-player.is-fullscreen {
+  width: 100%;
+  height: 100vh;
+  padding-right: 0 !important;
+}
+
+.video-player.with-comments {
+  padding-right: 360px;
+}
+
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 video {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* 保证视频填满容器，可能会有裁剪 */
+  object-fit: cover;
   border-radius: 15px;
 }
 
@@ -432,7 +495,13 @@ video {
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 12;
+  z-index: 101;
+}
+
+/* 当有评论区时，right 值保持不变，因为它会相对于收缩后的视频内容区域 */
+.video-player.with-comments .video-actions {
+  /* right 值保持不变，因为 padding-right 已经让内容区域收缩了 */
+  /* 如果需要微调，可以调整这里的值 */
 }
 
 .video-actions ul {
