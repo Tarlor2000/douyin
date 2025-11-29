@@ -29,9 +29,8 @@
 
         </ul>
       </div>
-    </div>
-    <!-- 进度条 -->
-    <div class="progress-wrapper" v-show="!isFullscreen">
+      <!-- 进度条 -->
+      <div class="progress-wrapper" v-show="!isFullscreen">
       <div class="progress-track" @click="seekVideo">
         <div class="progress-fill" :style="{ width: progress + '%' }"></div>
       </div>
@@ -41,7 +40,7 @@
           <i class="iconfont icon-zanting" v-else></i>
         </div>
 
-        {{ formatTime(currentTime) }} / {{ formatTime(duration) }}
+        <span class="time-display">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
         <div class="danmaku-wrapper">
             <input 
               type="text" 
@@ -77,6 +76,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
 
     <div class="video-info" v-show="!isFullscreen">
@@ -296,6 +296,7 @@ watch(
   height: 80vh;
   background-color: rgb(22,24,35);
   transition: width 0.3s ease, padding-right 0.3s ease, height 0.3s ease;
+  overflow: visible;
 }
 
 .video-player.is-fullscreen {
@@ -305,13 +306,14 @@ watch(
 }
 
 .video-player.with-comments {
-  padding-right: 360px;
+  padding-right: 362px;
 }
 
 .video-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
+  overflow: visible;
 }
 
 video {
@@ -355,6 +357,13 @@ video {
   font-variant-numeric: tabular-nums;
   font-size:16px;
   gap: 10px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.time-display {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .control-bar {
@@ -364,6 +373,12 @@ video {
   justify-content: flex-end;
   gap: 12px;
   flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.control-bar > div {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .danmaku-wrapper {
@@ -498,11 +513,6 @@ video {
   z-index: 101;
 }
 
-/* 当有评论区时，right 值保持不变，因为它会相对于收缩后的视频内容区域 */
-.video-player.with-comments .video-actions {
-  /* right 值保持不变，因为 padding-right 已经让内容区域收缩了 */
-  /* 如果需要微调，可以调整这里的值 */
-}
 
 .video-actions ul {
   list-style: none;

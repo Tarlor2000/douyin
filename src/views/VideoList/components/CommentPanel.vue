@@ -1,7 +1,6 @@
 <!-- src/components/CommentPanel.vue -->
 <template>
 
-
   <!-- 评论区主体 -->
   <div class="comment-panel" :class="{ show: isShow }">
     <!-- 头部：标题 + 关闭按钮 -->
@@ -33,7 +32,34 @@
         <div class="comment-content">
           <div class="comment-author">{{ comment.author }}</div>
           <div class="comment-text">{{ comment.content }}</div>
-          <div class="comment-time">{{ comment.time }}</div>
+                    <!-- 评论元信息：时间 + 互动按钮 -->
+          <div class="comment-meta">
+            <span class="comment-time">{{ comment.time }}</span>
+            <!-- 新增：4个互动按钮 -->
+            <div class="comment-actions">
+              <!-- 回复按钮 -->
+              <button class="action-btn reply-btn" @click="handleReply(comment, idx)">
+                <i class="iconfont icon-huifu"></i>回复
+              </button>
+              <!-- 分享按钮 -->
+              <button class="action-btn share-btn" @click="handleShare(comment)">
+                <i class="iconfont icon-huifu1"></i>分享
+              </button>
+              <!-- 点赞按钮 -->
+              <button class="action-btn like-btn" @click="handleCommentLike(idx)">
+                <i class="like-icon" :class="{ liked: comment.isLiked }"></i>
+                <i class="iconfont icon-aixin"></i> {{ comment.likeCount || 0 }}
+              </button>
+              <!-- 查看更多回复（只有回复数>0才显示） -->
+              <button 
+                class="action-btn more-reply-btn" 
+                @click="handleShowMoreReply(idx)"
+                v-if="comment.replyCount > 0"
+              >
+                查看更多回复 {{ comment.isShowMore ? '收起' : '+' + comment.replyCount }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -166,9 +192,9 @@ const handleSubmit = () => {
 .comment-panel {
   position: fixed;
   top: 0;
-  right: 0;
+  right: 2px;
   width: 360px;
-  height: 100%;
+  height: 85%;
   background-color: #111217;
   color: #fff;
   z-index: 100;
@@ -279,6 +305,167 @@ const handleSubmit = () => {
 @media (max-width: 768px) {
   .comment-panel {
     width: 100%;
+  }
+}
+/* 评论元信息（时间 + 互动按钮） */
+.comment-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.comment-time {
+  font-size: 0.7rem;
+  color: #999;
+}
+
+/* 新增：评论互动按钮容器 */
+.comment-actions {
+  display: flex;
+  gap: 15px;
+  font-size: 0.8rem;
+}
+
+/* 单个互动按钮样式 */
+.action-btn {
+  background: transparent;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 2px 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s;
+}
+
+/* 按钮hover效果 */
+.action-btn:hover {
+  color: #ffffff;
+}
+
+/* 点赞图标样式 */
+
+
+/* 已点赞状态 */
+.like-icon.liked::before {
+  color: #ff3b30;
+}
+
+/* 新增：回复列表样式 */
+.reply-list {
+  margin-top: 12px;
+  margin-left: 46px; /* 缩进，与主评论区分 */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 单条回复样式 */
+.reply-item {
+  display: flex;
+  gap: 8px;
+}
+
+.reply-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.reply-content {
+  flex: 1;
+  background-color: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.reply-author {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+/* 被回复人@标识 */
+.reply-to {
+  color: #007aff;
+  margin-left: 4px;
+  font-weight: normal;
+}
+
+.reply-text {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.reply-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+  color: #999;
+}
+
+/* 回复点赞按钮 */
+.reply-like-btn {
+  background: transparent;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s;
+}
+
+.reply-like-btn:hover {
+  color: #ff3b30;
+}
+
+/* 新增：回复输入框区域 */
+.reply-input-area {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.reply-input-area input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  outline: none;
+  font-size: 0.8rem;
+}
+
+.submit-reply-btn {
+  padding: 6px 12px;
+  background-color: #007aff;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.2s;
+}
+
+.submit-reply-btn:hover {
+  background-color: #0066cc;
+}
+
+/* 移动端适配：调整按钮间距和回复列表缩进 */
+@media (max-width: 768px) {
+  .comment-actions {
+    gap: 10px;
+  }
+
+  .reply-list {
+    margin-left: 36px;
   }
 }
 </style>
