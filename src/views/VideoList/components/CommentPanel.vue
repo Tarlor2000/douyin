@@ -100,10 +100,10 @@
       <input
         type="text"
         v-model="newCommentContent"
-        placeholder="说点什么..."
+        placeholder="留下你精彩的评论吧..."
         @keyup.enter="handleSubmit"
       />
-      <button class="submit-btn" @click="handleSubmit">发送</button>
+      <button class="submit-btn" @click="handleSubmit"><i class="iconfont icon-arrowTop"></i></button>
     </div>
 
     <!-- 复制成功提示 -->
@@ -506,20 +506,25 @@ onUnmounted(() => {
   flex: 1;
   padding: 10px 16px;
   border: none;
-  border-radius: 24px;
+  border-radius: 10px;
   outline: none;
   font-size: 0.9rem;
-  background: rgba(255, 255, 255, 0.12);
+  background-color: rgba(56, 62, 61,0.8);
   color: #fff;
 }
+.comment-input-area input:hover {
+  border: 1px solid #fff;
+ 
+}
 .submit-btn {
-  padding: 10px 20px;
+  padding: 10px 10px;
   background-color: #ff2d55;
   color: white;
   border: none;
-  border-radius: 24px;
-  cursor: pointer;
-  font-size: 0.9rem;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size:15px
+
 }
 .submit-btn:disabled {
   background-color: #cccccc;

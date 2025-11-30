@@ -52,7 +52,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <link rel="stylesheet" href="//at.alicdn.com/t/c/font_5071343_a0rhjmpb83r.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/c/font_5071343_5s5lgt4po49.css">
 
     <header >
         <router-link to="/"><i class="iconfont icon-douyin1" style="  margin-left: 10px;"></i><span>抖音</span></router-link>
