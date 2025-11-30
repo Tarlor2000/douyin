@@ -103,7 +103,7 @@ const mockVideos = [
   },
   {
     id: 2,
-    title: "CSS Grid 布局实战教程（带背景音）",
+    title: "CSS Grid 布局实战教程",
     // 带声音的测试视频2：环境音+讲解
     videoUrl: "https://test-videos.co.uk/vids/jellyfish/mp4/h264/720/Jellyfish_720_10s_3MB.mp4",
     coverUrl: "https://picsum.photos/id/11/800/450",
@@ -144,7 +144,7 @@ const loadMoreVideos = () => {
   setTimeout(() => {
     page++;
     const newVideos = Array.from({ length: 2 }, (_, i) => {
-      // 测试视频列表（循环使用）
+      // 测试视频列表
       const soundVideoUrls = [
         "https://test-videos.co.uk/vids/bee/mp4/h264/720/Bee_720_10s_1MB.mp4", // 蜜蜂嗡嗡声
         "https://test-videos.co.uk/vids/crow/mp4/h264/720/Crow_720_10s_2MB.mp4", // 乌鸦叫声

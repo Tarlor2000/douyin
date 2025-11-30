@@ -1,19 +1,19 @@
 <template>
   <div class="video-player" :class="{ 'with-comments': isCommentShow, 'is-fullscreen': isFullscreen }">
     <div class="video-wrapper">
-      <video
-        ref="videoRef"
-        :poster="video.coverUrl"
-        controlsList="nodownload"
-        playsinline
-        loop
-        @click="togglePlay"
-        @timeupdate="handleTimeUpdate"
-        @loadedmetadata="handleLoadedMetadata"
-        @play="handlePlay"
-        @pause="handlePause"
+    <video
+      ref="videoRef"
+      :poster="video.coverUrl"
+      controlsList="nodownload"
+      playsinline
+      loop
+      @click="togglePlay"
+      @timeupdate="handleTimeUpdate"
+      @loadedmetadata="handleLoadedMetadata"
+      @play="handlePlay"
+      @pause="handlePause"
         @error="handleVideoError"
-      ></video>
+    ></video>
       <div class="video-actions" v-show="!isFullscreen">
         <ul>
           <li>
@@ -42,11 +42,11 @@
 
         </ul>
       </div>
-      <!-- 进度条 -->
+    <!-- 进度条 -->
       <div class="progress-wrapper" v-show="!isFullscreen">
         <div class="progress-track" @click="seekVideo">
-          <div class="progress-fill" :style="{ width: progress + '%' }"></div>
-        </div>
+        <div class="progress-fill" :style="{ width: progress + '%' }"></div>
+      </div>
       <div class="progress-time">
         <div class="progress-icons">
           <i class="iconfont icon-bofang" v-if="isVideoPaused"  @click="togglePlay"></i>
@@ -95,7 +95,7 @@
           </div>
           <div>
               <i class="iconfont icon-shaohouzaikan"></i>
-          </div>
+        </div>
 
           <!-- 音量控制 -->
           <div 
@@ -131,7 +131,7 @@
           </div>
         </div>
       </div>
-    </div>
+      </div>
     </div>
 
     <div class="video-info" v-show="!isFullscreen">
@@ -347,8 +347,8 @@ const seekVideo = (event) => {
     videoRef.value.currentTime = clampedTime;
     currentTime.value = clampedTime;
   } else {
-    videoRef.value.currentTime = newTime;
-    currentTime.value = newTime;
+  videoRef.value.currentTime = newTime;
+  currentTime.value = newTime;
   }
 };
 

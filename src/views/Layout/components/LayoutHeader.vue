@@ -55,7 +55,7 @@ onMounted(() => {
     <link rel="stylesheet" href="//at.alicdn.com/t/c/font_5071343_5s5lgt4po49.css">
 
     <header >
-        <router-link to="/"><i class="iconfont icon-douyin1" style="  margin-left: 10px;"></i><span>抖音</span></router-link>
+        <router-link to="/"><i class="iconfont icon-douyin1" style="  margin-left: 40px; font-size:22px"></i><span style=" font-size:22px">抖音</span></router-link>
         <div class="search-box" @mouseenter="change()" @mouseleave="change()">
             <input 
                 type="text" 

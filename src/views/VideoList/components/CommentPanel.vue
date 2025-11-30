@@ -70,11 +70,13 @@
           </div>
           <!-- 回复列表 -->
           <div class="replies-list" v-if="comment.replies && comment.replies.length > 0 && comment.isShowReplies">
-            <div class="reply-item" v-for="(reply, replyIdx) in comment.replies" :key="replyIdx">
+            <div class="reply-item" :class="{ 'reply-hidden': reply.isHidden }" v-for="(reply, replyIdx) in comment.replies" :key="replyIdx">
               <img :src="reply.avatar" alt="Reply Avatar" class="reply-avatar" />
               <div class="reply-content">
                 <div class="reply-author">{{ reply.author }}</div>
-                <div class="reply-text">{{ reply.content }}</div>
+                
+                <div class="reply-text" v-if="!reply.isHidden">{{ reply.content }}</div>
+                <div class="reply-hidden-text" v-else>该回复已被隐藏</div>
                 <div class="reply-meta">
                   <span class="reply-time">{{ reply.time }}</span>
                 </div>
@@ -83,19 +85,19 @@
                   <!-- 新增：3个互动按钮 -->
                   <div class="comment-actions">
                     <!-- 回复按钮 -->
-                    <button class="action-btn reply-btn" @click="handleReply(comment, idx)">
+                    <button class="action-btn reply-btn" @click.stop="handleReplyToReply(comment, idx, reply, replyIdx)">
                       <i class="iconfont icon-huifu"></i>回复
                     </button>
                     <!-- 分享按钮 -->
-                    <button class="action-btn share-btn" @click="handleShare(comment)">
+                    <button class="action-btn share-btn" @click.stop="handleShareReply(comment, idx, reply, replyIdx)">
                       <i class="iconfont icon-fuzhi"></i>复制
                     </button>
                     <!-- 点赞按钮 -->
                     <button class="action-btn like-btn" @click.stop="handleReplyCommentLike(idx, replyIdx, $event)">
                       <i class="iconfont icon-aixin" :class="{ liked: reply.isLiked }"></i> {{ reply.replylikeCount || 0 }}
                     </button>
-                    <!-- 隐藏评论按钮 -->
-                    <button class="action-btn yingcang-btn" @click="handlexinsui(comment, idx)">
+                    <!-- 隐藏回复按钮 -->
+                    <button class="action-btn yingcang-btn" @click.stop="handleHideReply(idx, replyIdx)">
                       <i class="iconfont icon-xinsui"></i>
                     </button>
                   </div>
@@ -122,7 +124,7 @@
       <input
         type="text"
         v-model="newCommentContent"
-        placeholder="留下你精彩的评论吧..."
+        :placeholder="replyingTo ? `回复 @${replyingTo.author}：` : '留下你精彩的评论吧...'"
         @keyup.enter="handleSubmit"
       />
       <button class="submit-btn" @click="handleSubmit"><i class="iconfont icon-arrowTop"></i></button>
@@ -160,6 +162,7 @@ const newCommentContent = ref(""); // 新评论输入内容
 const commentList = ref(props.initComments); // 评论列表（基于父组件传递的初始数据）
 const activeTab = ref(1); // 添加激活的 tab 索引，默认激活第二个（"评论"）
 const showCopyToast = ref(false); // 控制复制成功提示显示
+const replyingTo = ref(null); // 记录正在回复的对象 { type: 'comment' | 'reply', commentIdx, replyIdx?, author }
 
 // 切换评论菜单显示/隐藏
 const toggleCommentMenu = (idx) => {
@@ -208,14 +211,45 @@ const generateMockReplies = (count) => {
     content: `这是第${i + 1}条回复内容，回复的内容会显示在这里。`,
     time: `${i + 1}小时前`,
     isLiked: false,
-    replylikeCount: Math.floor(Math.random() * 100)
+    replylikeCount: Math.floor(Math.random() * 100),
+    isHidden: false
   }));
 };
 
 // 回复评论
 const handleReply = (comment, idx) => {
-  // TODO: 实现回复功能
-  console.log('回复评论', comment, idx);
+  replyingTo.value = {
+    type: 'comment',
+    commentIdx: idx,
+    author: comment.author
+  };
+  // 聚焦到输入框
+  const input = document.querySelector('.comment-input-area input');
+  if (input) {
+    input.focus();
+  }
+};
+
+// 回复回复
+const handleReplyToReply = (comment, commentIdx, reply, replyIdx) => {
+  replyingTo.value = {
+    type: 'reply',
+    commentIdx: commentIdx,
+    replyIdx: replyIdx,
+    author: reply.author
+  };
+  // 确保回复列表展开
+  if (!comment.isShowReplies) {
+    if (!comment.replies && comment.replyCount > 0) {
+      comment.replies = generateMockReplies(comment.replyCount);
+    }
+    comment.isShowReplies = true;
+  }
+  // 聚焦到输入框
+  const input = document.querySelector('.comment-input-area input');
+  if (input) {
+    input.focus();
+  }
 };
 
 // 复制评论内容
@@ -233,6 +267,40 @@ const handleShare = async (comment) => {
     // 如果 clipboard API 不可用，使用 fallback 方法
     const textArea = document.createElement('textarea');
     textArea.value = comment.content;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      showCopyToast.value = true;
+      setTimeout(() => {
+        showCopyToast.value = false;
+      }, 2000);
+    } catch (err) {
+      console.error('复制失败:', err);
+    }
+    document.body.removeChild(textArea);
+  }
+};
+
+// 复制回复内容
+const handleShareReply = async (comment, commentIdx, reply, replyIdx) => {
+  try {
+    // 复制回复内容到剪贴板
+    await navigator.clipboard.writeText(reply.content);
+    // 显示复制成功提示
+    showCopyToast.value = true;
+    // 2秒后隐藏提示
+    setTimeout(() => {
+      showCopyToast.value = false;
+    }, 2000);
+  } catch (err) {
+    // 如果 clipboard API 不可用，使用 fallback 方法
+    const textArea = document.createElement('textarea');
+    textArea.value = reply.content;
     textArea.style.position = 'fixed';
     textArea.style.left = '-999999px';
     textArea.style.top = '-999999px';
@@ -294,6 +362,14 @@ const handleReplyCommentLike = (commentIdx, replyIdx, event) => {
 const handlexinsui = (comment, idx) => {
   commentList.value[idx].isHidden = true;
 };
+
+//隐藏回复
+const handleHideReply = (commentIdx, replyIdx) => {
+  const comment = commentList.value[commentIdx];
+  if (comment && comment.replies && comment.replies[replyIdx]) {
+    comment.replies[replyIdx].isHidden = true;
+  }
+};
 // 监听父组件传递的 initComments 变化（比如切换视频时更新评论）
 watch(
   () => props.initComments,
@@ -305,7 +381,14 @@ watch(
       isLiked: comment.isLiked || false,
       likeCount: comment.likeCount || 0,
       showMenu: comment.showMenu || false,
-      isHidden: comment.isHidden || false
+      isHidden: comment.isHidden || false,
+      // 初始化回复数据
+      replies: comment.replies ? comment.replies.map(reply => ({
+        ...reply,
+        isHidden: reply.isHidden || false,
+        isLiked: reply.isLiked || false,
+        replylikeCount: reply.replylikeCount || 0
+      })) : comment.replies
     }));
   },
   { deep: true, immediate: true }
@@ -322,19 +405,47 @@ const handleSubmit = () => {
   const content = newCommentContent.value.trim();
   if (!content) return;
 
-  // 构造新评论数据（前端临时模拟，后续由后端返回）
-  const newComment = {
-    avatar: "https://picsum.photos/id/99/100/100", // 当前用户头像
-    author: "我",
-    content: content,
-    time: "刚刚"
-  };
+  if (replyingTo.value) {
+    // 回复评论或回复
+    const { type, commentIdx, replyIdx } = replyingTo.value;
+    const newReply = {
+      avatar: "https://picsum.photos/id/99/100/100",
+      author: "我",
+      content: content,
+      time: "刚刚",
+      isLiked: false,
+      replylikeCount: 0,
+      isHidden: false
+    };
 
-  // 通知父组件提交评论（父组件可选择是否调用后端接口）
-  emit('submitComment', newComment);
+    const comment = commentList.value[commentIdx];
+    if (!comment.replies) {
+      comment.replies = [];
+    }
+    comment.replies.push(newReply);
+    comment.replyCount = (comment.replyCount || 0) + 1;
+    
+    // 确保回复列表展开
+    comment.isShowReplies = true;
+    
+    // 清空回复状态
+    replyingTo.value = null;
+  } else {
+    // 提交新评论
+    const newComment = {
+      avatar: "https://picsum.photos/id/99/100/100", // 当前用户头像
+      author: "我",
+      content: content,
+      time: "刚刚"
+    };
 
-  // 前端临时更新列表（实际项目中应等待后端响应后再更新）
-  commentList.value.unshift(newComment);
+    // 通知父组件提交评论（父组件可选择是否调用后端接口）
+    emit('submitComment', newComment);
+
+    // 前端临时更新列表（实际项目中应等待后端响应后再更新）
+    commentList.value.unshift(newComment);
+  }
+  
   newCommentContent.value = "";
 };
 
@@ -642,6 +753,12 @@ onUnmounted(() => {
   display: flex;
   gap: 8px;
   margin-bottom: 12px;
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.reply-item.reply-hidden {
+  opacity: 0.5;
+  filter: grayscale(100%);
 }
 
 .reply-avatar {
@@ -668,6 +785,14 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.75);
   margin-bottom: 4px;
   line-height: 1.4;
+}
+
+.reply-hidden-text {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 4px;
+  line-height: 1.4;
+  font-style: italic;
 }
 
 .reply-meta {
