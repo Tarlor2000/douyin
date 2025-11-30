@@ -78,6 +78,28 @@
                 <div class="reply-meta">
                   <span class="reply-time">{{ reply.time }}</span>
                 </div>
+                <div class="comment-meta">
+                  
+                  <!-- 新增：3个互动按钮 -->
+                  <div class="comment-actions">
+                    <!-- 回复按钮 -->
+                    <button class="action-btn reply-btn" @click="handleReply(comment, idx)">
+                      <i class="iconfont icon-huifu"></i>回复
+                    </button>
+                    <!-- 分享按钮 -->
+                    <button class="action-btn share-btn" @click="handleShare(comment)">
+                      <i class="iconfont icon-fuzhi"></i>复制
+                    </button>
+                    <!-- 点赞按钮 -->
+                    <button class="action-btn like-btn" @click.stop="handleReplyCommentLike(idx, replyIdx, $event)">
+                      <i class="iconfont icon-aixin" :class="{ liked: reply.isLiked }"></i> {{ reply.replylikeCount || 0 }}
+                    </button>
+                    <!-- 隐藏评论按钮 -->
+                    <button class="action-btn yingcang-btn" @click="handlexinsui(comment, idx)">
+                      <i class="iconfont icon-xinsui"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -184,7 +206,9 @@ const generateMockReplies = (count) => {
     avatar: `https://picsum.photos/id/${100 + i}/100/100`,
     author: `回复用户${String.fromCharCode(65 + i)}`,
     content: `这是第${i + 1}条回复内容，回复的内容会显示在这里。`,
-    time: `${i + 1}小时前`
+    time: `${i + 1}小时前`,
+    isLiked: false,
+    replylikeCount: Math.floor(Math.random() * 100)
   }));
 };
 
@@ -238,6 +262,34 @@ const handleCommentLike = (idx) => {
     commentList.value[idx].likeCount = Math.max((commentList.value[idx].likeCount || 0) - 1, 0);
   }
 };
+
+// 回复点赞
+const handleReplyCommentLike = (commentIdx, replyIdx, event) => {
+  // 阻止事件冒泡，防止触发其他点击事件
+  if (event) {
+    event.stopPropagation();
+  }
+  const comment = commentList.value[commentIdx];
+  if (!comment.replies || !comment.replies[replyIdx]) {
+    return;
+  }
+  const reply = comment.replies[replyIdx];
+  if (!reply.isLiked) {
+    reply.isLiked = true;
+    reply.replylikeCount = (reply.replylikeCount || 0) + 1;
+  } else {
+    reply.isLiked = false;
+    reply.replylikeCount = Math.max((reply.replylikeCount || 0) - 1, 0);
+  }
+  // 点赞后确保回复列表保持展开状态
+  // 如果回复数据不存在，初始化回复数据
+  if (!comment.replies && comment.replyCount > 0) {
+    comment.replies = generateMockReplies(comment.replyCount);
+  }
+  // 强制保持展开状态
+  comment.isShowReplies = true;
+};
+
 //隐藏评论
 const handlexinsui = (comment, idx) => {
   commentList.value[idx].isHidden = true;

@@ -45,25 +45,30 @@ const mockVideos = [
         author: "网友小A",
         content: "这个教程太实用了！声音很清晰～",
         time: "1小时前",
+        replylikeCount: 546,
         replyCount: 3,
+
         replies: [
           {
             avatar: "https://picsum.photos/id/33/100/100",
             author: "网友小C",
             content: "请问哪里可以获取源码？",
             time: "50分钟前",
+            replylikeCount: 899,
           },
           {
             avatar: "https://picsum.photos/id/64/100/100",
             author: "前端技术栈",
             content: "源码在 GitHub 仓库，简介里有链接～",
             time: "30分钟前",
+            replylikeCount: 89,
           },
           {
             avatar: "https://picsum.photos/id/33/100/100",
             author: "网友",
             content: "hi？",
             time: "23分钟前",
+            replylikeCount: 68,
           },
         ],
         isShowReplies: false,
@@ -74,6 +79,7 @@ const mockVideos = [
         author: "前端学习者",
         content: "请问这个效果是用什么插件实现的？",
         time: "2小时前",
+        replylikeCount: 1,
         replyCount: 2,
         replies: [
           {
@@ -81,12 +87,14 @@ const mockVideos = [
             author: "我",
             content: "用的是 vue-awesome-swiper 哦～",
             time: "1小时前",
+            replylikeCount: 4,
           },
           {
             avatar: "https://picsum.photos/id/64/100/100",
             author: "前端技术栈",
             content: "源码在 GitHub 仓库，简介里有链接～",
             time: "30分钟前",
+            replylikeCount: 0,
           },
         ],
         isShowReplies: false,
@@ -105,7 +113,7 @@ const mockVideos = [
     },
     likeCount: 8765,
     commentCount: 1,
-    collectionCount: 14,
+    collectionCount: 13,
     shareCount: 110,
     commentList: [
       {
@@ -114,6 +122,7 @@ const mockVideos = [
         author: "UI设计师",
         content: "Grid 布局真的太灵活了！声音很清楚～",
         time: "3小时前",
+        replylikeCount: 141,
         replyCount: 0,
         replies: [],
         isShowReplies: false,
