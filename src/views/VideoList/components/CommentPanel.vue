@@ -1,6 +1,5 @@
 <!-- src/components/CommentPanel.vue -->
 <template>
-
   <!-- 评论区主体 -->
   <div class="comment-panel" :class="{ show: isShow }">
     <!-- 头部：标题 + 关闭按钮 -->
@@ -35,7 +34,7 @@
                     <!-- 评论元信息：时间 + 互动按钮 -->
           <div class="comment-meta">
             <span class="comment-time">{{ comment.time }}</span>
-            <!-- 新增：4个互动按钮 -->
+            <!-- 新增：3个互动按钮 -->
             <div class="comment-actions">
               <!-- 回复按钮 -->
               <button class="action-btn reply-btn" @click="handleReply(comment, idx)">
@@ -47,18 +46,32 @@
               </button>
               <!-- 点赞按钮 -->
               <button class="action-btn like-btn" @click="handleCommentLike(idx)">
-                <i class="like-icon" :class="{ liked: comment.isLiked }"></i>
-                <i class="iconfont icon-aixin"></i> {{ comment.likeCount || 0 }}
-              </button>
-              <!-- 查看更多回复（只有回复数>0才显示） -->
-              <button 
-                class="action-btn more-reply-btn" 
-                @click="handleShowMoreReply(idx)"
-                v-if="comment.replyCount > 0"
-              >
-                查看更多回复 {{ comment.isShowMore ? '收起' : '+' + comment.replyCount }}
+                <i class="iconfont icon-aixin" :class="{ liked: comment.isLiked }"></i> {{ comment.likeCount || 0 }}
               </button>
             </div>
+          </div>
+          <!-- 回复列表 -->
+          <div class="replies-list" v-if="comment.replies && comment.replies.length > 0 && comment.isShowReplies">
+            <div class="reply-item" v-for="(reply, replyIdx) in comment.replies" :key="replyIdx">
+              <img :src="reply.avatar" alt="Reply Avatar" class="reply-avatar" />
+              <div class="reply-content">
+                <div class="reply-author">{{ reply.author }}</div>
+                <div class="reply-text">{{ reply.content }}</div>
+                <div class="reply-meta">
+                  <span class="reply-time">{{ reply.time }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 展开/收起回复按钮（在最下方单独显示） -->
+          <div class="expand-replies" v-if="comment.replyCount > 0">
+            <button 
+              class="expand-reply-btn" 
+              @click="handleToggleReplies(idx)"
+            >
+              <span v-if="!comment.isShowReplies">展开{{ comment.replyCount }}条回复</span>
+              <span v-else>收起回复</span>
+            </button>
           </div>
         </div>
       </div>
@@ -110,13 +123,66 @@ const activeTab = ref(1); // 添加激活的 tab 索引，默认激活第二个�
 const handleTabClick = (index) => {
   activeTab.value = index;
 };
+
+// 展开/收起回复
+const handleToggleReplies = (idx) => {
+  if (!commentList.value[idx].isShowReplies) {
+    // 如果回复数据不存在，初始化回复数据
+    if (!commentList.value[idx].replies && commentList.value[idx].replyCount > 0) {
+      commentList.value[idx].replies = generateMockReplies(commentList.value[idx].replyCount);
+    }
+    commentList.value[idx].isShowReplies = true;
+  } else {
+    commentList.value[idx].isShowReplies = false;
+  }
+};
+
+// 生成模拟回复数据
+const generateMockReplies = (count) => {
+  return Array.from({ length: count }, (_, i) => ({
+    avatar: `https://picsum.photos/id/${100 + i}/100/100`,
+    author: `回复用户${String.fromCharCode(65 + i)}`,
+    content: `这是第${i + 1}条回复内容，回复的内容会显示在这里。`,
+    time: `${i + 1}小时前`
+  }));
+};
+
+// 回复评论
+const handleReply = (comment, idx) => {
+  // TODO: 实现回复功能
+  console.log('回复评论', comment, idx);
+};
+
+// 分享评论
+const handleShare = (comment) => {
+  // TODO: 实现分享功能
+  console.log('分享评论', comment);
+};
+
+// 点赞评论
+const handleCommentLike = (idx) => {
+  if (!commentList.value[idx].isLiked) {
+    commentList.value[idx].isLiked = true;
+    commentList.value[idx].likeCount = (commentList.value[idx].likeCount || 0) + 1;
+  } else {
+    commentList.value[idx].isLiked = false;
+    commentList.value[idx].likeCount = Math.max((commentList.value[idx].likeCount || 0) - 1, 0);
+  }
+};
+
 // 监听父组件传递的 initComments 变化（比如切换视频时更新评论）
 watch(
   () => props.initComments,
   (newVal) => {
-    commentList.value = newVal;
+    // 初始化评论数据，确保有 isShowReplies 属性
+    commentList.value = newVal.map(comment => ({
+      ...comment,
+      isShowReplies: comment.isShowReplies || false,
+      isLiked: comment.isLiked || false,
+      likeCount: comment.likeCount || 0
+    }));
   },
-  { deep: true }
+  { deep: true, immediate: true }
 );
 
 // 关闭评论区：通知父组件更新 isShow 状态
@@ -346,26 +412,20 @@ const handleSubmit = () => {
 }
 
 /* 点赞图标样式 */
-
-
-/* 已点赞状态 */
-.like-icon.liked::before {
+.icon-aixin.liked {
   color: #ff3b30;
 }
 
-/* 新增：回复列表样式 */
-.reply-list {
+
+/* 回复列表样式 */
+.replies-list {
   margin-top: 12px;
-  margin-left: 46px; /* 缩进，与主评论区分 */
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
-/* 单条回复样式 */
 .reply-item {
   display: flex;
   gap: 8px;
+  margin-bottom: 12px;
 }
 
 .reply-avatar {
@@ -373,33 +433,57 @@ const handleSubmit = () => {
   height: 28px;
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .reply-content {
   flex: 1;
-  background-color: #f5f5f5;
-  padding: 8px 12px;
-  border-radius: 12px;
 }
 
 .reply-author {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #333;
+  color: #fff;
   margin-bottom: 4px;
-}
-
-/* 被回复人@标识 */
-.reply-to {
-  color: #007aff;
-  margin-left: 4px;
-  font-weight: normal;
 }
 
 .reply-text {
-  font-size: 0.8rem;
-  color: #666;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
   margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.reply-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reply-time {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* 展开/收起回复按钮 */
+.expand-replies {
+  margin-top: 8px;
+}
+
+.expand-reply-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 4px 0;
+  font-size: 0.8rem;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.expand-reply-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .reply-meta {

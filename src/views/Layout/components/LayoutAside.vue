@@ -2,15 +2,15 @@
 
     <div>
         <ul>
-            <li><i class="iconfont icon-icon"></i>精选</li>
-            <li><router-link to = 'recommend'>推荐</router-link></li>
-            <li>AI抖音</li>
-            <li>关注</li>
-            <li>朋友</li>
-            <li>我的</li>
-            <li>直播</li> 
-            <li>放映厅</li>
-            <li>短剧</li>
+            <li><i class="iconfont icon-icon tubiao"></i>精选</li>
+            <li><i class="iconfont icon-icon tubiao"></i><router-link to = 'recommend'>推荐</router-link></li>
+            <li><i class="iconfont icon-AIzhushou tubiao "></i>AI抖音</li>
+            <li><i class="iconfont icon-wodeguanzhu tubiao"></i>关注</li>
+            <li><i class="iconfont icon-pengyou tubiao"></i>朋友</li>
+            <li><i class="iconfont icon-wode tubiao"></i>我的</li>
+            <li><i class="iconfont icon-zhibo tubiao"></i>直播</li> 
+            <li><i class="iconfont icon-fangyingting tubiao"></i>放映厅</li>
+            <li><i class="iconfont icon-duanju tubiao"></i>短剧</li>
         </ul>
     </div>
 </template>
@@ -19,6 +19,10 @@
 </script>
 
 <style scoped>
+.tubiao {
+    font-size: 15px;
+    margin-right: 10px;
+}
     div {
         width: 130px;
         text-align: center;
@@ -29,6 +33,7 @@
     div ul li {
         padding:10px 0;
         margin: 0 20px;
+        text-align: center;
         
     }
     div ul li:hover {
@@ -43,5 +48,9 @@
     ul li:nth-child(6){
         padding-bottom: 10px;
         border-bottom: 1px solid rgb(56, 56, 58);
+    }
+    ul li:nth-child(3),
+    ul li:nth-child(8){
+        padding-left: 13px;
     }
 </style>
