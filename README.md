@@ -1,38 +1,190 @@
-# douyin
+# 抖音风格短视频应用
 
-This template should help get you started developing with Vue 3 in Vite.
+一个基于 Vue 3 开发的抖音风格短视频应用，支持垂直滑动浏览、视频播放、评论互动等功能。
 
-## Recommended IDE Setup
+## ✨ 功能特性
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### 🎥 视频功能
+- **垂直滑动浏览**：使用 Swiper 实现类似抖音的垂直滑动体验
+- **视频播放**：支持 MP4 和 HLS (.m3u8) 格式视频播放
+- **播放控制**：
+  - 播放/暂停
+  - 进度条拖拽
+  - 音量控制（鼠标悬停显示音量滑块）
+  - 倍速播放（0.5x - 2.0x）
+  - 全屏播放
+  - 智能连播
+  - 清屏功能
+- **弹幕功能**：支持发送弹幕（样式已实现）
+- **键盘快捷键**：↑/↓ 键切换视频
 
-## Recommended Browser Setup
+### 💬 评论系统
+- **评论面板**：右侧滑出式评论面板
+- **评论功能**：
+  - 发布评论
+  - 回复评论
+  - 回复回复（嵌套回复）
+  - 点赞评论/回复
+  - 复制评论/回复内容
+  - 隐藏评论/回复
+  - 举报评论
+- **回复展开**：支持展开/收起回复列表
+- **实时更新**：评论和回复实时更新到列表
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+### 🎨 用户界面
+- **响应式布局**：适配不同屏幕尺寸
+- **现代化设计**：深色主题，符合现代审美
+- **流畅动画**：平滑的过渡和交互效果
+- **视频操作栏**：右侧垂直排列的互动按钮（点赞、评论、收藏、分享等）
 
-## Customize configuration
+## 🛠️ 技术栈
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- **框架**：Vue 3.5+ (Composition API)
+- **构建工具**：Vite 7+
+- **路由**：Vue Router 4
+- **状态管理**：Pinia 3
+- **UI 组件库**：Element Plus 2
+- **视频播放**：HLS.js 1.6+ (支持 .m3u8 格式)
+- **滑动组件**：Swiper 8 + vue-awesome-swiper
+- **HTTP 请求**：Axios 1.13+
 
-## Project Setup
+## 📁 项目结构
 
-```sh
+```
+douyin/
+├── public/                 # 静态资源
+├── src/
+│   ├── apis/              # API 接口
+│   │   └── video.js       # 视频相关接口
+│   ├── assets/            # 资源文件
+│   │   ├── images/        # 图片资源
+│   │   └── video/         # 视频资源
+│   ├── router/            # 路由配置
+│   │   └── index.js
+│   ├── stores/            # Pinia 状态管理
+│   │   └── counter.js
+│   ├── style/             # 全局样式
+│   │   └── reset.css
+│   ├── views/             # 页面组件
+│   │   ├── Layout/        # 布局组件
+│   │   │   ├── components/
+│   │   │   │   ├── LayoutHeader.vue  # 头部组件
+│   │   │   │   └── LayoutAside.vue   # 侧边栏组件
+│   │   │   └── index.vue
+│   │   └── VideoList/     # 视频列表页
+│   │       ├── components/
+│   │       │   ├── VideoPlayer.vue    # 视频播放器
+│   │       │   └── CommentPanel.vue  # 评论面板
+│   │       └── index.vue
+│   ├── App.vue            # 根组件
+│   └── main.js             # 入口文件
+├── package.json
+├── vite.config.js          # Vite 配置
+└── README.md
+```
+
+## 🚀 快速开始
+
+### 环境要求
+
+- Node.js: ^20.19.0 || >=22.12.0
+- npm 或 yarn
+
+### 安装依赖
+
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+**重要依赖说明**：
+- `hls.js`：用于支持 HLS (.m3u8) 格式视频播放，已包含在依赖中，运行 `npm install` 会自动安装
+- 如需单独安装：`npm install hls.js`
 
-```sh
+### 开发运行
+
+```bash
 npm run dev
 ```
 
-### Compile and Minify for Production
+启动后访问 `http://localhost:5173`（端口可能不同，请查看终端输出）
 
-```sh
+### 生产构建
+
+```bash
 npm run build
 ```
+
+构建产物将输出到 `dist/` 目录
+
+### 预览构建结果
+
+```bash
+npm run preview
+```
+
+## 📖 使用说明
+
+### 视频浏览
+- 使用鼠标滚轮或触摸滑动上下切换视频
+- 使用键盘 ↑/↓ 键切换视频
+- 点击视频区域播放/暂停
+
+### 视频控制
+- **播放控制栏**：视频底部显示播放控制
+- **音量控制**：鼠标悬停在音量图标上显示音量滑块
+- **倍速播放**：鼠标悬停在"倍速"按钮上选择播放速度
+- **全屏播放**：点击全屏图标进入/退出全屏
+- **弹幕**：在弹幕输入框输入内容并发送
+
+### 评论功能
+- 点击视频右侧的评论图标打开评论面板
+- 在评论面板中可以：
+  - 查看所有评论和回复
+  - 发布新评论
+  - 回复评论或回复
+  - 点赞评论/回复
+  - 复制评论/回复内容
+  - 隐藏评论/回复
+  - 举报评论
+
+## 🎯 核心组件说明
+
+### VideoPlayer.vue
+视频播放器组件，负责：
+- 视频播放控制
+- 播放进度管理
+- 音量控制
+- 倍速控制
+- 全屏功能
+- 弹幕输入
+- 视频互动按钮
+
+### CommentPanel.vue
+评论面板组件，负责：
+- 评论列表展示
+- 评论/回复发布
+- 评论/回复互动（点赞、复制、隐藏等）
+- 回复展开/收起
+- 评论菜单（举报等）
+
+### VideoList/index.vue
+视频列表页面，负责：
+- 视频列表管理
+- Swiper 滑动控制
+- 视频切换逻辑
+- 键盘事件处理
+
+## 🔧 配置说明
+
+### 视频格式支持
+项目支持以下视频格式：
+- **MP4**：浏览器原生支持
+- **HLS (.m3u8)**：通过 HLS.js 库支持，需要安装 `hls.js` 依赖
+
+> **注意**：HLS.js 已在 `package.json` 中配置，运行 `npm install` 会自动安装。如果遇到 HLS 视频无法播放的问题，请确保已正确安装 `hls.js` 依赖。
+
+### 路由配置
+默认路由：
+- `/` - 布局页面
+- `/recommend` - 推荐视频列表
+
