@@ -26,11 +26,25 @@
 
     <!-- 评论列表 -->
     <div class="comment-list">
-      <div class="comment-item" v-for="(comment, idx) in commentList" :key="idx">
+      <div class="comment-item" :class="{ 'comment-hidden': comment.isHidden }" v-for="(comment, idx) in commentList" :key="idx">
         <img :src="comment.avatar" alt="Comment Avatar" class="comment-avatar" />
         <div class="comment-content">
-          <div class="comment-author">{{ comment.author }}</div>
-          <div class="comment-text">{{ comment.content }}</div>
+          <div class="comment-header-row">
+            <div class="comment-author">{{ comment.author }}</div>
+            <div class="comment-menu-wrapper">
+              <i 
+                class="iconfont icon-gengduo comment-menu-icon" 
+                @click="toggleCommentMenu(idx)"
+              ></i>
+              <div class="comment-menu-dropdown" v-if="comment.showMenu">
+                <button class="report-btn" @click="handleReport(comment, idx)">
+                  举报评论
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="comment-text" v-if="!comment.isHidden">{{ comment.content }}</div>
+          <div class="comment-hidden-text" v-else>该评论已被隐藏</div>
                     <!-- 评论元信息：时间 + 互动按钮 -->
           <div class="comment-meta">
             <span class="comment-time">{{ comment.time }}</span>
@@ -42,11 +56,15 @@
               </button>
               <!-- 分享按钮 -->
               <button class="action-btn share-btn" @click="handleShare(comment)">
-                <i class="iconfont icon-huifu1"></i>分享
+                <i class="iconfont icon-fuzhi"></i>复制
               </button>
               <!-- 点赞按钮 -->
               <button class="action-btn like-btn" @click="handleCommentLike(idx)">
                 <i class="iconfont icon-aixin" :class="{ liked: comment.isLiked }"></i> {{ comment.likeCount || 0 }}
+              </button>
+              <!-- 隐藏评论按钮 -->
+              <button class="action-btn yingcang-btn" @click="handlexinsui(comment, idx)">
+                <i class="iconfont icon-xinsui"></i>
               </button>
             </div>
           </div>
@@ -87,11 +105,14 @@
       />
       <button class="submit-btn" @click="handleSubmit">发送</button>
     </div>
+
+    <!-- 复制成功提示 -->
+    <div class="copy-toast" v-if="showCopyToast">复制成功</div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 
 // 接收父组件传递的参数
 const props = defineProps({
@@ -116,6 +137,26 @@ const emit = defineEmits(['close', 'submitComment']);
 const newCommentContent = ref(""); // 新评论输入内容
 const commentList = ref(props.initComments); // 评论列表（基于父组件传递的初始数据）
 const activeTab = ref(1); // 添加激活的 tab 索引，默认激活第二个（"评论"）
+const showCopyToast = ref(false); // 控制复制成功提示显示
+
+// 切换评论菜单显示/隐藏
+const toggleCommentMenu = (idx) => {
+  // 关闭其他评论的菜单
+  commentList.value.forEach((item, index) => {
+    if (index !== idx) {
+      item.showMenu = false;
+    }
+  });
+  // 切换当前评论的菜单
+  commentList.value[idx].showMenu = !commentList.value[idx].showMenu;
+};
+
+// 举报评论（暂不实现具体功能）
+const handleReport = (comment, idx) => {
+  console.log('举报评论', comment, idx);
+  // 关闭菜单
+  commentList.value[idx].showMenu = false;
+};
 
 // ... 现有的 watch 和函数 ...
 
@@ -153,10 +194,38 @@ const handleReply = (comment, idx) => {
   console.log('回复评论', comment, idx);
 };
 
-// 分享评论
-const handleShare = (comment) => {
-  // TODO: 实现分享功能
-  console.log('分享评论', comment);
+// 复制评论内容
+const handleShare = async (comment) => {
+  try {
+    // 复制评论内容到剪贴板
+    await navigator.clipboard.writeText(comment.content);
+    // 显示复制成功提示
+    showCopyToast.value = true;
+    // 2秒后隐藏提示
+    setTimeout(() => {
+      showCopyToast.value = false;
+    }, 2000);
+  } catch (err) {
+    // 如果 clipboard API 不可用，使用 fallback 方法
+    const textArea = document.createElement('textarea');
+    textArea.value = comment.content;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      showCopyToast.value = true;
+      setTimeout(() => {
+        showCopyToast.value = false;
+      }, 2000);
+    } catch (err) {
+      console.error('复制失败:', err);
+    }
+    document.body.removeChild(textArea);
+  }
 };
 
 // 点赞评论
@@ -169,7 +238,10 @@ const handleCommentLike = (idx) => {
     commentList.value[idx].likeCount = Math.max((commentList.value[idx].likeCount || 0) - 1, 0);
   }
 };
-
+//隐藏评论
+const handlexinsui = (comment, idx) => {
+  commentList.value[idx].isHidden = true;
+};
 // 监听父组件传递的 initComments 变化（比如切换视频时更新评论）
 watch(
   () => props.initComments,
@@ -179,7 +251,9 @@ watch(
       ...comment,
       isShowReplies: comment.isShowReplies || false,
       isLiked: comment.isLiked || false,
-      likeCount: comment.likeCount || 0
+      likeCount: comment.likeCount || 0,
+      showMenu: comment.showMenu || false,
+      isHidden: comment.isHidden || false
     }));
   },
   { deep: true, immediate: true }
@@ -211,6 +285,25 @@ const handleSubmit = () => {
   commentList.value.unshift(newComment);
   newCommentContent.value = "";
 };
+
+// 点击外部区域关闭菜单
+const handleClickOutside = (event) => {
+  const target = event.target;
+  // 如果点击的不是菜单图标或菜单下拉框，则关闭所有菜单
+  if (!target.closest('.comment-menu-wrapper')) {
+    commentList.value.forEach(item => {
+      item.showMenu = false;
+    });
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <style scoped>
@@ -310,7 +403,14 @@ const handleSubmit = () => {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  transition: opacity 0.3s ease, filter 0.3s ease;
 }
+
+.comment-item.comment-hidden {
+  opacity: 0.5;
+  filter: grayscale(100%);
+}
+
 .comment-avatar {
   width: 36px;
   height: 36px;
@@ -319,17 +419,76 @@ const handleSubmit = () => {
 }
 .comment-content {
   flex: 1;
+  position: relative;
 }
+
+.comment-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
 .comment-author {
   font-size: 0.9rem;
   font-weight: 600;
   color: #fff;
-  margin-bottom: 4px;
+}
+
+.comment-menu-wrapper {
+  position: relative;
+}
+
+.comment-menu-icon {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 4px;
+  transition: color 0.2s;
+  display: inline-block;
+}
+
+.comment-menu-icon:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.comment-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background-color: rgb(51, 52, 63);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  min-width: 120px;
+  overflow: hidden;
+}
+
+.report-btn {
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 0.85rem;
+  text-align: center;
+  transition: background-color 0.2s;
+}
+
+.report-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 .comment-text {
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.75);
   margin-bottom: 4px;
+}
+
+.comment-hidden-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 4px;
+  font-style: italic;
 }
 .comment-time {
   font-size: 0.7rem;
@@ -540,6 +699,41 @@ const handleSubmit = () => {
 
 .submit-reply-btn:hover {
   background-color: #0066cc;
+}
+
+/* 复制成功提示 */
+.copy-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  z-index: 1000;
+  animation: fadeInOut 2s ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  85% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
 }
 
 /* 移动端适配：调整按钮间距和回复列表缩进 */
